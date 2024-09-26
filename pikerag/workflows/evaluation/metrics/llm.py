@@ -45,9 +45,9 @@ class AnswerJudgementParser(BaseContentParser):
 
     def decode(self, content: str, **kwargs) -> int:
         content = content.strip().lower()
-        if content == "yes":
+        if content == "yes" or content == "yes.":
             return 1
-        elif content == "no":
+        elif content == "no" or content == "no.":
             return 0
         else:
             print(f"Cannot parse judgement response: {content}")
@@ -61,7 +61,7 @@ answer_judge_protocol = CommunicationProtocol(
 
 
 class LLM(BaseMetric):
-    name: str = "GPT-4"
+    name: str = "LLM-Accuracy"
 
     def __init__(self, num_rounds: int, num_data: int, main_logger: Logger = None, **kwargs) -> None:
         super().__init__(num_rounds, num_data, main_logger, **kwargs)
@@ -71,8 +71,8 @@ class LLM(BaseMetric):
             location=kwargs.get("cache_location", None),
         )
         self._llm_config = {
-            "model": "gpt-4",
-            "temperature": 0,
+            "model": kwargs.get("model", "gpt-4"),
+            "temperature": kwargs.get("temperature", 0),
         }
 
     def _scoring_generation_qa(self, qa: GenerationQaData) -> float:

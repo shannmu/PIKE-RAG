@@ -1,11 +1,11 @@
 # Environment Variable Setting
 ################################################################################
-dotenv_path: /home/jinyu/PIKE-RAG/env_configs/.env
+dotenv_path: env_configs/.env
 
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/biology
+log_root_dir: logs/biology
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: chunking
@@ -13,8 +13,11 @@ experiment_name: chunking
 
 # Input Document & Output Dir Setting
 ################################################################################
-input_doc_directory: /home/jinyu/PIKE-RAG/data/biology/contents
-output_doc_directory: /home/jinyu/PIKE-RAG/data/biology/chunks
+input_doc_setting:
+  doc_dir: data/biology/contents
+
+output_doc_setting:
+  doc_dir: data/biology/chunks
 
 
 # LLM Setting
@@ -38,7 +41,7 @@ llm_client:
   cache_config:
     # location: will be joined with log_dir to generate the full path;
     #   if set to null, the experiment_name would be used
-    location: null
+    location_prefix: null
     auto_dump: True
 
 

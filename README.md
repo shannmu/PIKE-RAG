@@ -1,93 +1,59 @@
-# PIKE-RAG: PrIvate KnowledgE and Rationale Augmented Generation
+<p align="center">
+    <img src="./docs/source/images/logo/PIKE-RAG_horizontal_black-font.svg" alt="PIKE-RAG" style="width: 80%; max-width: 100%; height: auto;">
+</p>
+
+<p align="center">
+    <a href="https://pike-rag.azurewebsites.net/">🌐Online Demo</a>
+    <a href="https://arxiv.org/abs/2501.11551">📊Technical Report</a>
+</p>
+
+[![License](https://img.shields.io/github/license/microsoft/PIKE-RAG)](https://github.com/microsoft/PIKE-RAG/blob/main/LICENSE)
+[![CodeQL](https://github.com/microsoft/PIKE-RAG/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/microsoft/PIKE-RAG/actions/workflows/github-code-scanning/codeql)
+[![Release](https://img.shields.io/github/v/release/microsoft/PIKE-RAG)](https://github.com/microsoft/PIKE-RAG/releases)
+[![ReleaseDate](https://img.shields.io/github/release-date-pre/microsoft/PIKE-RAG)](https://github.com/microsoft/PIKE-RAG/releases)
+[![Commits](https://img.shields.io/github/commits-since/microsoft/PIKE-RAG/latest/main)](https://github.com/microsoft/PIKE-RAG/commits/main)
+[![Pull Requests](https://img.shields.io/github/issues-pr/microsoft/PIKE-RAG)](https://github.com/microsoft/PIKE-RAG/pulls)
+[![Issues](https://img.shields.io/github/issues/microsoft/PIKE-RAG)](https://github.com/microsoft/PIKE-RAG/issues)
+
+# PIKE-RAG: sPecIalized KnowledgE and Rationale Augmented Generation
+
+## Why PIKE-RAG?
+
+In recent years, Retrieval Augmented Generation (RAG) systems have made significant progress in extending the capabilities of Large Language Models (LLM) through external retrieval. However, these systems still face challenges in meeting the complex and diverse needs of real-world industrial applications. Relying solely on direct retrieval is insufficient for extracting deep domain-specific knowledge from professional corpora and performing logical reasoning. To address this issue, we propose the PIKE-RAG (sPecIalized KnowledgE and Rationale Augmented Generation) method, which focuses on extracting, understanding, and applying domain-specific knowledge while building coherent reasoning logic to gradually guide LLMs toward accurate responses.
+
+<p align="center">
+    <img src="docs/source/images/readme/pipeline.png" alt="Overview of PIKE-RAG Framework" style="width: 80%; max-width: 100%; height: auto;">
+</p>
+
+PIKE-RAG framework mainly consists of several basic modules, including document parsing, knowledge extraction, knowledge storage, knowledge retrieval, knowledge organization, knowledge-centric reasoning, and task decomposition and coordination. By adjusting the submodules within the main modules, it is possible to achieve RAG systems that focus on different capabilities to meet the diverse needs of real-world scenarios.
+
+For example, in case *patient's historical medical records searching*, it focuses on the *factual information retrieval capability*. The main challenges are that (1) the understanding and extraction of knowledge are often hindered by inappropriate knowledge segmentation, disrupting semantic coherence, leading to a complex and inefficient retrieval process; (2) commonly used embedding-based knowledge retrieval is limited by embedding models' ability to align professional terms and aliases, reducing system accuracy. With PIKE-RAG, we can improve the accuracy of knowledge extraction and retrieval by using context-aware segmentation techniques, automatic term label alignment techniques, and multi-granularity knowledge extraction methods during the knowledge extraction process, thereby enhancing factual information retrieval capability, as shown in the pipeline below.
+
+<p align="center">
+    <img src="docs/source/images/readme/L1_pipeline.png" alt="A Pipeline Focusing on Factual Information Retrieval" style="width: 80%; max-width: 100%; height: auto;">
+</p>
+
+For complex task like *reasonable treatment plans and coping measures suggestions for patients*, it requires more advanced capabilities: strong domain-specific knowledge are required to accurately understand the task and sometimes reasonably decompose it; advanced data retrieval, processing and organization techniques are also required for potential tendency prediction; while multi-agents planning will also be useful to take considerations of both creativity and reliance. In such case, a richer pipeline below can be initialized to achive this.
+
+<p align="center">
+    <img src="docs/source/images/readme/L4_pipeline.png" alt="A Pipeline Focusing on Fact-based Innovation and Generation" style="width: 80%; max-width: 100%; height: auto;">
+</p>
+
+In public benchmark tests, PIKE-RAG demonstrated excellent performance on several multi-hop question answering datasets such as HotpotQA, 2WikiMultiHopQA, and MuSiQue. Compared to existing benchmark methods, PIKE-RAG excelled in metrics like accuracy and F1 score. On the HotpotQA dataset, PIKE-RAG achieved an accuracy of 87.6%, on 2WikiMultiHopQA it reached 82.0%, and on the more challenging MuSiQue dataset, it achieved 59.6%. These results indicate that PIKE-RAG has significant advantages in handling complex reasoning tasks, especially in scenarios that require integrating multi-source information and performing multi-step reasoning.
+
+PIKE-RAG has been tested and significantly improved question answering accuracy in fields such as industrial manufacturing, mining, and pharmaceuticals. In the future, we will continue to explore its application in more fields. Additionally, we will continue to explore other forms of knowledge and logic and their optimal adaptation to specific scenarios.
+
+## For More Details
+
+- 📊 [Technical Report](https://arxiv.org/abs/2501.11551) will illustrate the industrial RAG problem classification, introduce the main components in PIKE-RAG, and show some experimental results in public benchmarks.
+- 🌐 [Online Demo](https://pike-rag.azurewebsites.net/) is a show-case of our Knowledge-Aware decomposition pipeline for L2 RAG task.
 
 ## Quick Start
 
-Please set your `PYTHONPATH` before running the scripts:
-
-### Windows
-
-```powershell
-$Env:PYTHONPATH=PATH-TO-THIS-REPO
-
-# If you exactly under this repository directory, you can do it by
-$Env:PYTHONPATH=$PWD
-```
-
-### Linux / Mac OS
-
-```sh
-export PYTHONPATH=PATH-TO-THIS-REPO
-
-# If you are exactly under the repository directory, you can do it by
-export PYTHONPATH=$PWD
-```
-
-## .env File
-
-Please follow below environment configuration variable names to create your *.env* file, we suggest you put it under
-`PIKE-RAG/env_configs/` which has already been added to *.gitignore* file:
-
-### For Azure OpenAI Client
-
-```sh
-AZURE_OPENAI_ENDPOINT = "YOUR-ENDPOINT(https://xxx.openai.azure.com/)"
-OPENAI_API_TYPE = "azure"
-OPENAI_API_VERSION = "2023-07-01-preview"
-```
-
-*Note that the way to access GPT API with key is disabled in Azure now.*
-
-To access GPT resource from Azure, please remember to login to Azure CLI using your *SC-* account:
-
-```sh
-# Install Azure-CLI and other dependencies. Sudo permission is required.
-bash scripts/install_az.sh
-
-# Login Azure CLI using device code.
-bash scripts/login_az.sh
-```
-
-### For Azure Meta LlaMa Client
-
-Since the endpoint and API keys varied among different LlaMa models, you can add multiple
-(`llama_endpoint_name`, `llama_key_name`) pairs you want to use into the *.env* file, and specify the names when
-initializing `AzureMetaLlamaClient` (you can modify the llm client args in the YAML files). If `null` is set to be the
-name, the (`LLAMA_ENDPOINT`, `LLAMA_API_KEY`) would be used as the default environment variable name.
-
-```sh
-# Option 1: Set only one pair in one time, update these variables every time you want to change the LlaMa model.
-LLAMA_ENDPOINT = "YOUR-LLAMA-ENDPOINT"
-LLAMA_API_KEY = "YOUR-API-KEY"
-
-# Option 2: Add multiple pairs into the .env file, for example:
-LLAMA3_8B_ENDPOINT = "..."
-LLAMA3_8B_API_KEY = "..."
-
-LLAMA3_70B_ENDPOINT = "..."
-LLAMA3_70B_API_KEY = "..."
-```
-
-#### Ways to Get the Available Azure Meta LLaMa **Endpoints**, **API Keys** and **Model Names**
-
-The way we have implemented the LLaMa model so far involves requesting the deployed model on the GCR server. You can
-find the available settings follow the steps below:
-
-1. Open [Azure Machine Learning Studio](https://ml.azure.com/home), sign in may be required;
-2. Click *Workspaces* on the left side (expand the menu by clicking the three horizontal lines in the top left corner if
-you cannot find it);
-3. Choose and click on a valid workspace, e.g., *gcrllm2ws*;
-4. Click *Endpoints* on the left side (expand the menu by clicking the three horizontal lines in the top left corner if
-you cannot find it), You can find the available model list in this page;
-5. Choose and click the model you want to use, e.g., *gcr-llama-3-8b-instruct*:
-    - **model** name: in tab "Details", scroll to find "Deployment summary", the *Live traffic allocation* string (e.g.,
-        *meta-llama-3-8b-instruct-4*) is the model name you need to set up in your YAML file;
-    - **LLAMA_ENDPOINT** & **LLAMA_API_KEY**: can be found in tab "Consume".
-
-#### Handling the Issue "Specified deployment could not be found"
-
-If you get error message "Specified deployment could not be found", it indicates that the GCR team has changed the
-server deployment location. In this case, you need to check the available model list in
-[Azure Machine Learning Studio](https://ml.azure.com/home) and update the YAML config again.
+1. Clone this repo and set up the Python environment, refer to [this document](docs/guides/environment.md);
+2. Create a `.env` file to save your endpoint information (and some other environment variables if needed), refer to [this document](docs/guides/env_file.md);
+3. Modify the *yaml config* files and try the scripts under *examples/*, refer to [this document](docs/guides/examples.md);
+4. Build up your own pipeline and/or add your own components!
 
 ## Contributing
 

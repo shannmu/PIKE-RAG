@@ -5,7 +5,7 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/biology/qa
+log_root_dir: logs/biology/qa
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: qa_with_chunk_reference
@@ -92,7 +92,7 @@ retriever:
         module_path: biology.utils
         func_name: load_ids_and_chunks
         args:
-          chunk_file_dir: /home/jinyu/PIKE-RAG/data/biology/chunks
+          chunk_file_dir: data/biology/chunks
 
       embedding_setting:
         args:

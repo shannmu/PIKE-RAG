@@ -1,17 +1,17 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
-import jsonlines
-import os
 from typing import List, Literal, Tuple
 
+import jsonlines
+import pickle
 from langchain_core.documents import Document
 
 from pikerag.workflows.common import GenerationQaData
 
 
 # Used in tagging
-def load_chunks(jsonl_chunk_path: str) -> List[Document]:
+def load_chunks_from_jsonl(jsonl_chunk_path: str) -> List[Document]:
     with jsonlines.open(jsonl_chunk_path, "r") as reader:
         chunk_dicts = [obj for obj in reader]
 
@@ -26,12 +26,26 @@ def load_chunks(jsonl_chunk_path: str) -> List[Document]:
 
 
 # Used in tagging
-def save_tagged_chunks(tagged_chunks: List[Document], dump_path: str) -> None:
+def save_chunks_to_jsonl(tagged_chunks: List[Document], dump_path: str) -> None:
     with jsonlines.open(dump_path, "w") as writer:
         for chunk in tagged_chunks:
             chunk_dict = chunk.metadata
             chunk_dict["content"] = chunk.page_content
             writer.write(chunk_dict)
+    return
+
+
+# Used in tagging
+def load_chunks_from_pkl(filepath: str) -> List[Document]:
+    with open(filepath, "rb") as fin:
+        chunks = pickle.load(fin)
+    return chunks
+
+
+# Used in tagging
+def save_chunks_to_pkl(chunks: List[Document], filepath: str) -> None:
+    with open(filepath, "wb") as fout:
+        pickle.dump(chunks, fout)
     return
 
 
@@ -47,7 +61,7 @@ def load_testing_suite(filepath: str) -> List[GenerationQaData]:
             testing_suite.append(
                 GenerationQaData(
                     question=qa["question"],
-                    answer_labels=qa["answer_labels"],
+                    answer_labels=[str(label) for label in qa["answer_labels"]],
                     metadata=qa["metadata"],
                 )
             )
@@ -69,7 +83,7 @@ def load_ids_and_chunks(filepath: str, atom_tag: str="atom_questions") -> Tuple[
                     metadata={
                         "id": chunk_dict["chunk_id"],
                         "title": chunk_dict["title"],
-                        f"{atom_tag}_str": "\n".join(chunk_dict[atom_tag])
+                        f"{atom_tag}_str": "\n".join(chunk_dict[atom_tag])  # TODO: allow missing
                     }
                 )
             )
@@ -82,7 +96,9 @@ def load_ids_and_atoms(filepath: str, atom_tag: str) -> Tuple[Literal[None], Lis
     with jsonlines.open(filepath, "r") as reader:
         for chunk_dict in reader:
             for atom in chunk_dict[atom_tag]:
-                atom_docs.append(
-                    Document(page_content=atom, metadata={"source_chunk_id": chunk_dict["chunk_id"]})
-                )
+                atom = atom.strip()
+                if len(atom) > 0:
+                    atom_docs.append(
+                        Document(page_content=atom, metadata={"source_chunk_id": chunk_dict["chunk_id"]})
+                    )
     return None, atom_docs

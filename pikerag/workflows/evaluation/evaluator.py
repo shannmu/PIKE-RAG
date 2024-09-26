@@ -16,7 +16,8 @@ from pikerag.workflows.evaluation.metrics.base import BaseMetric
 
 class Evaluator:
     def __init__(
-        self, evaluator_config: dict, num_rounds: int, num_data: int, log_dir: str, main_logger: Logger, name: str="",
+        self, evaluator_config: dict, num_rounds: int, num_data: int, log_dir: str,
+        main_logger: Logger=None, name: str="",
         **kwargs,
     ) -> None:
         self._evaluator_config: dict = evaluator_config
@@ -92,7 +93,12 @@ class Evaluator:
 
     def _start_report(self) -> None:
         metric_names: List[str] = [metric.name for metric in self._metrics]
-        self._main_logger.info(f"Evaluator initialized with {metric_names}.", tag=self._name)
+        msg = f"Evaluator initialized with {metric_names}."
+
+        if self._main_logger is not None:
+            self._main_logger.info(msg, tag=self._name)
+        else:
+            print(msg)
 
     def _round_report(self, round_id: str) -> None:
         if len(self._metrics) == 0:
@@ -103,10 +109,11 @@ class Evaluator:
             metric_reports.append([metric.name, metric.round_report()])
         report_table = tabulate(metric_reports, headers=["Metric", "Score"])
 
-        self._main_logger.info(
-            f"{round_id}: {len(self._metrics)} metrics over {self._num_data} test data:\n\n{report_table}\n",
-            tag=self._name
-        )
+        msg = f"{round_id}: {len(self._metrics)} metrics over {self._num_data} test data:\n\n{report_table}\n"
+        if self._main_logger is not None:
+            self._main_logger.info(msg, tag=self._name)
+        else:
+            print(msg)
 
     def _evaluation_report(self) -> None:
         if len(self._metrics) == 0 or self._num_rounds == 0:
@@ -117,10 +124,11 @@ class Evaluator:
             evaluation_reports.append([metric.name] + list(metric.evaluation_report()))
         report_table = tabulate(evaluation_reports, headers=["Metric", "Avg.", "Min", "Max", "Std."])
 
-        self._main_logger.info(
-            f"{len(self._metrics)} Evaluation Metrics over {self._num_rounds} rounds:\n\n{report_table}\n",
-            tag=self._name,
-        )
+        msg = f"{len(self._metrics)} Evaluation Metrics over {self._num_rounds} rounds:\n\n{report_table}\n"
+        if self._main_logger is not None:
+            self._main_logger.info(msg, tag=self._name)
+        else:
+            print(msg)
 
     def _dump_metrics(self) -> None:
         if len(self._metrics) == 0 or self._num_rounds == 0:

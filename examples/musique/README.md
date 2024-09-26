@@ -1,6 +1,6 @@
 # MuSiQue Experimental Results
 
-## Experiments with 500 random sample after dataset protocol applied
+## Experiments with 500 random sample
 
 |               Method                |    EM    |    F1    |
 |:-----------------------------------:|:--------:|:--------:|

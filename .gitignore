@@ -144,7 +144,3 @@ cython_debug/
 env_configs/
 data/
 logs/
-
-# May enable in the future
-notebooks/
-test/

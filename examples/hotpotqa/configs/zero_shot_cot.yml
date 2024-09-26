@@ -5,7 +5,7 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/hotpotqa
+log_root_dir: logs/hotpotqa
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: zero_shot_cot
@@ -15,7 +15,7 @@ experiment_name: zero_shot_cot
 test_jsonl_filename: null
 
 # Number of rounds you want to test. min, max, avg. accuracy will be reported if multiple rounds.
-test_rounds: 3
+test_rounds: 1
 
 
 # Workflow Setting
@@ -28,10 +28,10 @@ workflow:
 # Testing Suite Setting
 ################################################################################
 test_loading:
-  module: hotpotqa.utils
+  module: pikerag.utils.data_protocol_utils
   name: load_testing_suite
   args:
-    filepath: /home/jinyu/PIKE-RAG/data/hotpotqa/dev_500.jsonl
+    filepath: data/hotpotqa/dev_500.jsonl
 
 
 # Prompt Setting

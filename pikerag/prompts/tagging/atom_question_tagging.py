@@ -35,7 +35,7 @@ class AtomQuestionParser(BaseContentParser):
 
     def decode(self, content: str, **kwargs) -> List[str]:
         questions = content.split("\n")
-        questions = [question.strip() for question in questions]
+        questions = [question.strip() for question in questions if len(question.strip()) > 0]
         return questions
 
 

@@ -98,6 +98,8 @@ class BaseLLMClient(object):
         return
 
     def generate_content_with_messages(self, messages: List[dict], **llm_config) -> str:
+        # TODO: utilize self.llm_config if None provided in call.
+        # TODO: add functions to get tokens, logprobs.
         content = self._get_cache(messages, llm_config)
 
         if content is False or content is None or content == "":

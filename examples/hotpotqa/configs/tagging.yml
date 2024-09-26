@@ -5,7 +5,7 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/atom_tagging
+log_root_dir: logs/atom_tagging
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: hotpotqa_dev_500
@@ -14,16 +14,16 @@ experiment_name: hotpotqa_dev_500
 # Document Loading & Saving
 # ################################################################################
 ori_doc_loading:
-  module: hotpotqa.utils
-  name: load_chunks
+  module: pikerag.utils.data_protocol_utils
+  name: load_chunks_from_jsonl
   args:
-    jsonl_chunk_path: /home/jinyu/PIKE-RAG/data/hotpotqa/dev_500_retrieval_contexts_as_chunks.jsonl
+    jsonl_chunk_path: data/hotpotqa/dev_500_retrieval_contexts_as_chunks.jsonl
 
 tagged_doc_saving:
-  module: hotpotqa.utils
-  name: save_tagged_chunks
+  module: pikerag.utils.data_protocol_utils
+  name: save_chunks_to_jsonl
   args:
-    dump_path: /home/jinyu/PIKE-RAG/data/hotpotqa/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
+    dump_path: data/hotpotqa/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
 
 
 # Tagger Setting

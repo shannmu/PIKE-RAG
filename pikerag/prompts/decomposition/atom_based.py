@@ -94,7 +94,7 @@ Your task is to analyse the providing context then decide which sub-questions ma
 Please output in following JSON format:
 {{
     "thinking": <your thinking for this selection task>,
-    "question_idx": <a sub-question index, an integer from 1 to {num_atom_questions}>
+    "question_idx": <a sub-question index, an integer from 1 to {num_atoms}>
 }}
 
 # Context
@@ -102,7 +102,7 @@ The context we already have:
 {chosen_context}
 
 # Sub-Questions You Can Choose From
-{atom_question_list_str}
+{atom_list_str}
 
 # Question
 {content}
@@ -110,7 +110,7 @@ The context we already have:
 # Your output:
 """.strip()),
     ],
-    input_variables=["content", "num_atom_questions", "chosen_context", "atom_question_list_str"],
+    input_variables=["content", "num_atoms", "chosen_context", "atom_list_str"],
 )
 
 
@@ -124,16 +124,16 @@ class AtomQuestionSelectionParser(BaseContentParser):
     ) -> Tuple[str, dict]:
         context = atom_infos_to_context_string(chosen_atom_infos)
 
-        atom_question_list_str = ""
+        atom_list_str = ""
         for i, info in enumerate(atom_info_candidates):
-            atom_question_list_str += f"Question {i + 1}: {info.atom}\n"
+            atom_list_str += f"Question {i + 1}: {info.atom}\n"
 
         self._atom_info_candidates = atom_info_candidates
 
         return content, {
-            "num_atom_questions": len(atom_info_candidates),
+            "num_atoms": len(atom_info_candidates),
             "chosen_context": context,
-            "atom_question_list_str": atom_question_list_str,
+            "atom_list_str": atom_list_str,
         }
 
     def decode(self, content: str, **kwargs) -> Tuple[bool, str, AtomRetrievalInfo]:

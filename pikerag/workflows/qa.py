@@ -155,10 +155,10 @@ class QaWorkflow:
             f1 = self._evaluator._metrics_by_name["F1"]._round_total_score / count
             valid_metrics.append(("F1", f1))
 
-        gpt4 = None
-        if "GPT-4" in self._evaluator._metrics_by_name:
-            gpt4 = self._evaluator._metrics_by_name["GPT-4"]._round_total_score / count
-            valid_metrics.append(("GPT-4", gpt4))
+        accuracy = None
+        if "LLM-Accuracy" in self._evaluator._metrics_by_name:
+            accuracy = self._evaluator._metrics_by_name["LLM-Accuracy"]._round_total_score / count
+            valid_metrics.append(("LLM-Accuracy", accuracy))
 
         desc_prefix = f"[{self._yaml_config['experiment_name']}] Round {round_idx}"
         if len(valid_metrics) == 0:

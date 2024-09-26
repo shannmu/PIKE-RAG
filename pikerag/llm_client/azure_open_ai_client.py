@@ -5,9 +5,10 @@ import json
 import os
 import re
 import time
-from typing import Callable, List, Optional, Union
+from typing import Callable, List, Literal, Optional, Union
 
 import openai
+import pickledb
 from langchain_core.embeddings import Embeddings
 from openai import AzureOpenAI
 from openai.types import CreateEmbeddingResponse
@@ -15,32 +16,6 @@ from openai.types.chat.chat_completion import ChatCompletion
 
 from pikerag.llm_client.base import BaseLLMClient
 from pikerag.utils.logger import Logger
-
-
-def _get_key_from_key_vault(key_vault_name: str, secret_name: str) -> str:
-    # NOTE: not used the now due to Azure's security policy
-    print(f"Try get {secret_name} from {key_vault_name}...")
-    from azure.keyvault.secrets import SecretClient
-    from azure.identity import DefaultAzureCredential
-
-    KVUri = f"https://{key_vault_name}.vault.azure.net"
-    credential = DefaultAzureCredential()
-    client = SecretClient(vault_url=KVUri, credential=credential)
-    retrieved_secret = client.get_secret(secret_name)
-    return retrieved_secret.value
-
-
-def check_azure_openai_api_key() -> None:
-    # NOTE: not used the now due to Azure's security policy
-    if os.environ.get("AZURE_OPENAI_API_KEY", None) is None:
-        key_vault_name = os.environ.get("KEY_VAULT_NAME", None)
-        secret_name = os.environ.get("AZURE_OPENAI_API_KEY_SECRET_NAME", None)
-        assert key_vault_name is not None, f"Neither AZURE_OPENAI_API_KEY nor KEY_VAULT_NAME are set!"
-        assert secret_name is not None, f"Neither AZURE_OPENAI_API_KEY nor KEY_VAULT_NAME are set!"
-
-        os.environ["AZURE_OPENAI_API_KEY"] = _get_key_from_key_vault(key_vault_name, secret_name)
-        print(f"AZURE_OPENAI_API_KEY set with {secret_name} accessed from {key_vault_name}.")
-    return
 
 
 def get_azure_active_directory_token_provider() -> Callable[[], str]:
@@ -90,9 +65,11 @@ class AzureOpenAIClient(BaseLLMClient):
         """
         super().__init__(location, auto_dump, logger, max_attempt, exponential_backoff_factor, unit_wait_time, **kwargs)
 
-        self._client = AzureOpenAI(
-            azure_ad_token_provider=get_azure_active_directory_token_provider(),
-        )
+        client_configs = kwargs.get("client_config", {})
+        if client_configs.get("api_key", None) is None and os.environ.get("AZURE_OPENAI_API_KEY", None) is None:
+            client_configs["azure_ad_token_provider"] = get_azure_active_directory_token_provider()
+
+        self._client = AzureOpenAI(**client_configs)
 
     def _get_response_with_messages(self, messages: List[dict], **llm_config) -> ChatCompletion:
         response: ChatCompletion = None
@@ -158,13 +135,35 @@ class AzureOpenAIClient(BaseLLMClient):
 
 
 class AzureOpenAIEmbedding(Embeddings):
-    def __init__(self, model: str="text-embedding-ada-002", **kwargs) -> None:
-        # TODO: add cache for embedding.
-        self._client = AzureOpenAI(
-            azure_ad_token_provider=get_azure_active_directory_token_provider(),
-        )
+    def __init__(self, **kwargs) -> None:
+        client_configs = kwargs.get("client_config", {})
+        if client_configs.get("api_key", None) is None and os.environ.get("AZURE_OPENAI_API_KEY", None) is None:
+            client_configs["azure_ad_token_provider"] = get_azure_active_directory_token_provider()
 
-        self._model = model
+        self._client = AzureOpenAI(**client_configs)
+
+        self._model = kwargs.get("model", "text-embedding-ada-002")
+
+        cache_config = kwargs.get("cache_config", {})
+        cache_location = cache_config.get("location", None)
+        auto_dump = cache_config.get("auto_dump", True)
+        if cache_location is not None:
+            self._cache = pickledb.load(location=cache_location, auto_dump=auto_dump)
+        else:
+            self._cache = None
+
+    def _save_cache(self, query: str, embedding: List[float]) -> None:
+        if self._cache is None:
+            return
+
+        self._cache.set(query, embedding)
+        return
+
+    def _get_cache(self, query: str) -> Union[List[float], Literal[False]]:
+        if self._cache is None:
+            return False
+
+        return self._cache.get(query)
 
     def _get_response(self, texts: Union[str, List[str]]) -> CreateEmbeddingResponse:
         while True:
@@ -187,13 +186,19 @@ class AzureOpenAIEmbedding(Embeddings):
 
         return response
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: List[str], batch_call: bool=False) -> List[List[float]]:
         # NOTE: call self._get_response(texts) would cause RateLimitError, it may due to large batch size.
-        embeddings = []
-        for text in texts:
-            embeddings.append(self.embed_query(text))
+        if batch_call is True:
+            response = self._get_response(texts)
+            embeddings = [res.embedding for res in response.data]
+        else:
+            embeddings = [self.embed_query(text) for text in texts]
         return embeddings
 
     def embed_query(self, text: str) -> List[float]:
-        response = self._get_response(text)
-        return response.data[0].embedding
+        embedding =  self._get_cache(text)
+        if embedding is False:
+            response = self._get_response(text)
+            embedding = response.data[0].embedding
+            self._save_cache(text, embedding)
+        return embedding

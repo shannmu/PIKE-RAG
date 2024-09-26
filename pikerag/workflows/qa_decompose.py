@@ -208,6 +208,7 @@ class QaDecompositionWorkflow(QaWorkflow):
                 {
                     "relevant_proposal": info.atom_query,
                     "sub-question": info.atom,
+                    "relevant_context_title": info.source_chunk_title,
                     "relevant_context": info.source_chunk,
                 }
                 for info in atom_info_candidates

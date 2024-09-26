@@ -13,8 +13,8 @@ class BaseQaRetriever:
         self._log_dir: str = log_dir
         self._main_logger: Logger = main_logger
 
-    def retrieve_contents_by_query(self, query: str, retrieve_id: str, **kwargs) -> List[str]:
+    def retrieve_contents_by_query(self, query: str, retrieve_id: str="", **kwargs) -> List[str]:
         return []
 
-    def retrieve_contents(self, qa: BaseQaData, retrieve_id: str, **kwargs) -> List[str]:
-        return self.retrieve_contents_by_query(qa.question, retrieve_id)
+    def retrieve_contents(self, qa: BaseQaData, retrieve_id: str="", **kwargs) -> List[str]:
+        return self.retrieve_contents_by_query(qa.question, retrieve_id, **kwargs)

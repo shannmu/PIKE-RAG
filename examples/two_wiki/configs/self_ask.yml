@@ -5,7 +5,7 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/two_wiki
+log_root_dir: logs/two_wiki
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: self_ask
@@ -28,10 +28,10 @@ workflow:
 # Testing Suite Setting
 ################################################################################
 test_loading:
-  module: hotpotqa.utils
+  module: pikerag.utils.data_protocol_utils
   name: load_testing_suite
   args:
-    filepath: /home/jinyu/PIKE-RAG/data/two_wiki/dev_500.jsonl
+    filepath: data/two_wiki/dev_500.jsonl
 
 
 # Prompt Setting

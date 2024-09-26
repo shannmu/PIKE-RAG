@@ -36,7 +36,7 @@ def get_chunks_from_testing_suite(testing_suite: List[dict]) -> Dict[str, List[s
 
 
 if __name__ == "__main__":
-    data_dir = "/home/jinyu/PIKE-RAG/data"
+    data_dir = "data"
     datasets = ["hotpotqa", "two_wiki", "musique"]
     for dataset in datasets:
         dataset_dir = os.path.join(data_dir, dataset)

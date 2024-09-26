@@ -32,6 +32,15 @@ def load_yaml_config(config_path: str, args: argparse.Namespace) -> dict:
     if yaml_config["llm_client"]["cache_config"]["location_prefix"] is None:
         yaml_config["llm_client"]["cache_config"]["location_prefix"] = experiment_name
 
+    # input doc extensions setting
+    if "input_doc_setting" in yaml_config:
+        input_doc_dir = yaml_config["input_doc_setting"]["doc_dir"]
+        assert os.path.exists(input_doc_dir), f"Input doc dir {input_doc_dir} not exist!"
+        if "extensions" not in yaml_config["input_doc_setting"]:
+            yaml_config["input_doc_setting"]["extensions"] = None
+        elif isinstance(yaml_config["input_doc_setting"]["extensions"], str):
+            yaml_config["input_doc_setting"]["extensions"] = [yaml_config["input_doc_setting"]["extensions"]]
+
     return yaml_config
 
 

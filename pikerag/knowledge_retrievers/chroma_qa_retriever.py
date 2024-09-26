@@ -9,7 +9,7 @@ from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.documents import Document
 
 from pikerag.knowledge_retrievers.base_qa_retriever import BaseQaRetriever
-from pikerag.knowledge_retrievers.chroma_mixin import ChromaMetaType, ChromaMixin, load_vector_store
+from pikerag.knowledge_retrievers.mixins.chroma_mixin import ChromaMetaType, ChromaMixin, load_vector_store
 from pikerag.utils.config_loader import load_callable, load_embedding_func
 from pikerag.utils.logger import Logger
 from pikerag.workflows.common import BaseQaData
@@ -88,18 +88,20 @@ class QaChunkRetriever(BaseQaRetriever, ChromaMixin):
         )
         return
 
-    def _get_relevant_strings(self, doc_infos: List[Tuple[Document, float]], retrieve_id: str) -> List[str]:
+    def _get_relevant_strings(self, doc_infos: List[Tuple[Document, float]], retrieve_id: str="") -> List[str]:
         contents = [doc.page_content for doc, _ in doc_infos]
         return contents
 
-    def retrieve_contents_by_query(self, query: str, retrieve_id: str, **kwargs) -> List[str]:
+    def _get_doc_and_score_with_query(self, query: str, retrieve_id: str="", **kwargs) -> List[Tuple[Document, float]]:
         retrieve_k = kwargs.get("retrieve_k", self.retrieve_k)
+        retrieve_score_threshold = kwargs.get("retrieve_score_threshold", self.retrieve_score_threshold)
+        return self._get_doc_with_query(query, self.vector_store, retrieve_k, retrieve_score_threshold)
 
-        chunk_infos = self._get_doc_with_query(query, self.vector_store, retrieve_k, self.retrieve_score_threshold)
-
+    def retrieve_contents_by_query(self, query: str, retrieve_id: str="", **kwargs) -> List[str]:
+        chunk_infos = self._get_doc_and_score_with_query(query, retrieve_id, **kwargs)
         return self._get_relevant_strings(chunk_infos, retrieve_id)
 
-    def retrieve_contents(self, qa: BaseQaData, retrieve_id: str) -> List[str]:
+    def retrieve_contents(self, qa: BaseQaData, retrieve_id: str="") -> List[str]:
         queries: List[str] = self._query_parser(qa)
         retrieve_k = math.ceil(self.retrieve_k / len(queries))
 
@@ -125,7 +127,7 @@ class QaChunkWithMetaRetriever(QaChunkRetriever):
         assert "meta_name" in self._retriever_config, f"meta_name must be specified to use {self.name}"
         self._meta_name = self._retriever_config["meta_name"]
 
-    def _get_relevant_strings(self, doc_infos: List[Tuple[Document, float]], retrieve_id: str) -> List[str]:
+    def _get_relevant_strings(self, doc_infos: List[Tuple[Document, float]], retrieve_id: str="") -> List[str]:
         meta_value_list: List[ChromaMetaType] = list(set([doc.metadata[self._meta_name] for doc, _ in doc_infos]))
         if len(meta_value_list) == 0:
             return []

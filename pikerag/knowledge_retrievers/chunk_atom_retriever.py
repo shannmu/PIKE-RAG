@@ -11,7 +11,7 @@ from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 
 from pikerag.knowledge_retrievers.base_qa_retriever import BaseQaRetriever
-from pikerag.knowledge_retrievers.chroma_mixin import ChromaMixin, load_vector_store
+from pikerag.knowledge_retrievers.mixins.chroma_mixin import ChromaMixin, load_vector_store
 from pikerag.utils.config_loader import load_callable, load_embedding_func
 from pikerag.utils.logger import Logger
 
@@ -57,6 +57,9 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
         vector_store_config = self._retriever_config["vector_store"]
 
         collection_name = vector_store_config.get("collection_name", self.name)
+        doc_collection_name = vector_store_config.get("collection_name_doc", f"{collection_name}_doc")
+        atom_collection_name = vector_store_config.get("collection_name_atom", f"{collection_name}_atom")
+
         persist_directory = vector_store_config.get("persist_directory", None)
         if persist_directory is None:
             persist_directory = self._log_dir
@@ -77,7 +80,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
             name=loading_configs["func_name"],
         )(**loading_configs.get("args", {}))
         self._chunk_store: Chroma = load_vector_store(
-            collection_name=f"{collection_name}_doc",
+            collection_name=doc_collection_name,
             persist_directory=persist_directory,
             embedding=self.embedding_func,
             documents=docs,
@@ -91,7 +94,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
             name=loading_configs["func_name"],
         )(**loading_configs.get("args", {}))
         self._atom_store: Chroma = load_vector_store(
-            collection_name=f"{collection_name}_atom",
+            collection_name=atom_collection_name,
             persist_directory=persist_directory,
             embedding=self.embedding_func,
             documents=atoms,
@@ -129,7 +132,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
         return retrieval_infos
 
     def retrieve_atom_info_through_atom(
-        self, queries: Union[List[str], str], retrieve_id: str, **kwargs,
+        self, queries: Union[List[str], str], retrieve_id: str="", **kwargs,
     ) -> List[AtomRetrievalInfo]:
         """Retrieve the relevant atom and its source chunk by the given atom queries.
 
@@ -168,7 +171,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
         query_embedding = self.embedding_func.embed_query(query)
         for chunk_doc in chunk_docs:
             best_atom, best_score, best_embedding = "", 0, []
-            for atom in chunk_doc.metadata["atom_questions_str"].split("\n"):
+            for atom in chunk_doc.metadata["atom_questions_str"].split("\n"):  # TODO
                 atom_embedding = self.embedding_func.embed_query(atom)
                 score = self.similarity_func(query_embedding, atom_embedding)
                 if score > best_score:
@@ -191,7 +194,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
             )
         return retrieval_infos
 
-    def retrieve_atom_info_through_chunk(self, query: str, retrieve_id: str) -> List[AtomRetrievalInfo]:
+    def retrieve_atom_info_through_chunk(self, query: str, retrieve_id: str="") -> List[AtomRetrievalInfo]:
         """Retrieve the relevant chunk and its atom with best hit by the given query.
 
         Args:
@@ -208,7 +211,7 @@ class ChunkAtomRetriever(BaseQaRetriever, ChromaMixin):
         # Wrap to predefined dataclass.
         return self._chunk_info_tuple_to_class(query=query, chunk_docs=[doc for doc, _ in chunk_info])
 
-    def retrieve_contents_by_query(self, query: str, retrieve_id: str) -> List[str]:
+    def retrieve_contents_by_query(self, query: str, retrieve_id: str="") -> List[str]:
         """Retrieve the relevant chunk contents by the given query. The given query would be used to query both
         `_atom_store` and `_chunk_store`.
 

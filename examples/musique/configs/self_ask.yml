@@ -5,7 +5,7 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/musique
+log_root_dir: logs/musique
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
 experiment_name: self_ask
@@ -28,10 +28,10 @@ workflow:
 # Testing Suite Setting
 ################################################################################
 test_loading:
-  module: hotpotqa.utils
+  module: pikerag.utils.data_protocol_utils
   name: load_testing_suite
   args:
-    filepath: /home/jinyu/PIKE-RAG/data/musique/dev_500.jsonl
+    filepath: data/musique/dev_500.jsonl
 
 
 # Prompt Setting

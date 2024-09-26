@@ -5,10 +5,10 @@ dotenv_path: null
 
 # Logging Setting
 ################################################################################
-log_root_dir: /home/jinyu/PIKE-RAG/logs/musique
+log_root_dir: logs/musique
 
 # experiment_name: would be used to create log_dir = log_root_dir/experiment_name/
-experiment_name: self_ask_with_retrieval_ada
+experiment_name: self_ask_H-R
 
 # test_jsonl_filename: would be used to create test_jsonl_path = log_dir/test_jsonl_filename;
 #   if set to null, the experiment_name would be used
@@ -28,10 +28,10 @@ workflow:
 # Testing Suite Setting
 ################################################################################
 test_loading:
-  module: hotpotqa.utils
+  module: pikerag.utils.data_protocol_utils
   name: load_testing_suite
   args:
-    filepath: /home/jinyu/PIKE-RAG/data/musique/dev_500.jsonl
+    filepath: data/musique/dev_500.jsonl
 
 
 # Prompt Setting
@@ -82,20 +82,20 @@ retriever:
     vector_store:
       # can be null, default to retriever name
       collection_name: dev_500_atomic_decompose_ada
-      persist_directory: /home/jinyu/PIKE-RAG/data/vector_stores/musique
+      persist_directory: data/vector_stores/musique
 
       id_document_loading:
-        module_path: hotpotqa.utils
+        module_path: pikerag.utils.data_protocol_utils
         func_name: load_ids_and_chunks
         args:
-          filepath: /home/jinyu/PIKE-RAG/data/musique/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
+          filepath: data/musique/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
           atom_tag: atom_questions
 
       id_atom_loading:
-        module_path: hotpotqa.utils
+        module_path: pikerag.utils.data_protocol_utils
         func_name: load_ids_and_atoms
         args:
-          filepath: /home/jinyu/PIKE-RAG/data/musique/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
+          filepath: data/musique/dev_500_retrieval_contexts_as_chunks_with_atom_questions.jsonl
           atom_tag: atom_questions
 
       embedding_setting:
