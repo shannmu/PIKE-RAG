@@ -33,7 +33,7 @@ For example, in case *patient's historical medical records searching*, it focuse
     <img src="docs/source/images/readme/L1_pipeline.png" alt="A Pipeline Focusing on Factual Information Retrieval" style="width: 80%; max-width: 100%; height: auto;">
 </p>
 
-For complex task like *reasonable treatment plans and coping measures suggestions for patients*, it requires more advanced capabilities: strong domain-specific knowledge are required to accurately understand the task and sometimes reasonably decompose it; advanced data retrieval, processing and organization techniques are also required for potential tendency prediction; while multi-agents planning will also be useful to take considerations of both creativity and reliance. In such case, a richer pipeline below can be initialized to achive this.
+For complex task like *reasonable treatment plans and coping measures suggestions for patients*, it requires more advanced capabilities: strong domain-specific knowledge are required to accurately understand the task and sometimes reasonably decompose it; advanced data retrieval, processing and organization techniques are also required for potential tendency prediction; while multi-agents planning will also be useful to take considerations of both creativity and reliance. In such case, a richer pipeline below can be initialized to achieve this.
 
 <p align="center">
     <img src="docs/source/images/readme/L4_pipeline.png" alt="A Pipeline Focusing on Fact-based Innovation and Generation" style="width: 80%; max-width: 100%; height: auto;">
