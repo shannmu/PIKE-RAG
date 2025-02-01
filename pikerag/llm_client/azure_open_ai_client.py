@@ -8,11 +8,11 @@ import time
 from typing import Callable, List, Literal, Optional, Union
 
 import openai
-import pickledb
 from langchain_core.embeddings import Embeddings
 from openai import AzureOpenAI
 from openai.types import CreateEmbeddingResponse
 from openai.types.chat.chat_completion import ChatCompletion
+from pickledb import PickleDB
 
 from pikerag.llm_client.base import BaseLLMClient
 from pikerag.utils.logger import Logger
@@ -148,7 +148,7 @@ class AzureOpenAIEmbedding(Embeddings):
         cache_location = cache_config.get("location", None)
         auto_dump = cache_config.get("auto_dump", True)
         if cache_location is not None:
-            self._cache = pickledb.load(location=cache_location, auto_dump=auto_dump)
+            self._cache: PickleDB = PickleDB(location=cache_location)
         else:
             self._cache = None
 

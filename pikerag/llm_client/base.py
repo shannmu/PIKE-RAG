@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Union
 
-import pickledb
+from pickledb import PickleDB
 
 from pikerag.utils.logger import Logger
 
@@ -20,7 +20,7 @@ class BaseLLMClient(object):
         max_attempt: int = 5, exponential_backoff_factor: int = None, unit_wait_time: int = 60, **kwargs,
     ) -> None:
         self._cache_auto_dump: bool = auto_dump
-        self._cache = None
+        self._cache: PickleDB = None
         if location is not None:
             self.update_cache_location(location)
 
@@ -94,7 +94,7 @@ class BaseLLMClient(object):
             return
 
         key = self._generate_cache_key(messages, llm_config)
-        self._cache.rem(key)
+        self._cache.remove(key)
         return
 
     def generate_content_with_messages(self, messages: List[dict], **llm_config) -> str:
@@ -136,14 +136,14 @@ class BaseLLMClient(object):
 
     def update_cache_location(self, new_location: str) -> None:
         if self._cache is not None:
-            self._cache.dump()
+            self._cache.save()
 
         assert new_location is not None, f"A valid cache location must be provided"
 
         self._cache_location = new_location
-        self._cache = pickledb.load(location=self._cache_location, auto_dump=self._cache_auto_dump)
+        self._cache = PickleDB(location=self._cache_location)
 
     def close(self):
         """Close the active memory, connections, ...
         The client would not be usable after this operation."""
-        self._cache.dump()
+        self._cache.save()
