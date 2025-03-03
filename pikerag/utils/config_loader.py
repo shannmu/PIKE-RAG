@@ -55,8 +55,8 @@ def load_embedding_func(module_path: Optional[str]=None, class_name: Optional[st
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
     if module_path is None or class_name is None:
-        from langchain_community.embeddings import SentenceTransformerEmbeddings
-        embedding_class = SentenceTransformerEmbeddings
+        from langchain_huggingface import HuggingFaceEmbeddings
+        embedding_class = HuggingFaceEmbeddings
     else:
         embedding_class = load_callable(module_path, class_name)
 

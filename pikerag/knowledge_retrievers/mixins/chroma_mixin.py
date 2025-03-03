@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from chromadb.api.models.Collection import GetResult
-from langchain_community.vectorstores.chroma import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 

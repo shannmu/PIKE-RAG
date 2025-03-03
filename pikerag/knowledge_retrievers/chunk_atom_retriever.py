@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 
-from langchain_community.vectorstores.chroma import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 

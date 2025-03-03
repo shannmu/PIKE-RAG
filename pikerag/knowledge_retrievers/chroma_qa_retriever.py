@@ -5,7 +5,7 @@ import math
 from functools import partial
 from typing import List, Tuple
 
-from langchain_community.vectorstores.chroma import Chroma
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from pikerag.knowledge_retrievers.base_qa_retriever import BaseQaRetriever

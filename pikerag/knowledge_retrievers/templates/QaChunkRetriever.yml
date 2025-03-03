@@ -24,7 +24,7 @@ retriever:
         func_name: FUNC_NAME
         args: {}
 
-      # can be null, default to SentenceTransformerEmbeddings()
+      # can be null, default to HuggingFaceEmbeddings()
       embedding_setting:
         module_path: MODULE_PATH
         class_name: FUNC_NAME
